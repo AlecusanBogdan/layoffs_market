@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 
@@ -12,19 +11,12 @@ app = Flask(__name__,
             static_folder='../static')
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'the-layoffs-are-coming-winter-is-here')
-
-# Use in-memory SQLite for Vercel (data won't persist, but app will work)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///:memory:')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'admin_login'
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # ============== MODELS ==============
@@ -93,34 +85,124 @@ def load_user(user_id):
     return Admin.query.get(int(user_id))
 
 
-# ============== SEED DATA ==============
+# ============== COMPLETE SEED DATA (262 employees, 63 to cut) ==============
 SEED_DATA = {
-    "Boost": [{"title": "Machine Learning Engineer", "cor_code": "251204", "total": 1, "cut": 0}],
+    "Boost": [
+        {"title": "Machine Learning Engineer", "cor_code": "251204", "total": 1, "cut": 0},
+    ],
     "CC (Caesars Slots)": [
         {"title": "2D Animator", "cor_code": "251101", "total": 1, "cut": 0},
         {"title": "2D Artist", "cor_code": "251101, 251201", "total": 7, "cut": 1},
         {"title": "Animator", "cor_code": "251101", "total": 3, "cut": 1},
+        {"title": "Art Group Manager", "cor_code": "122314", "total": 1, "cut": 0},
+        {"title": "Art Team Leader", "cor_code": "122314, 251206", "total": 2, "cut": 0},
         {"title": "C# Developer", "cor_code": "251202, 251204, 351201", "total": 17, "cut": 10},
+        {"title": "C# Technical Lead", "cor_code": "251202, 251204", "total": 5, "cut": 0},
+        {"title": "Copywriter", "cor_code": "351202", "total": 1, "cut": 0},
         {"title": "Flash Integrator", "cor_code": "251101, 351202", "total": 7, "cut": 3},
+        {"title": "Java Developer", "cor_code": "251202, 251204", "total": 11, "cut": 0},
+        {"title": "Java Technical Lead", "cor_code": "121904, 251202, 251204", "total": 5, "cut": 0},
+        {"title": "JavaScript Developer", "cor_code": "251202, 251204", "total": 2, "cut": 0},
+        {"title": "JavaScript Technical Lead", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Lead Animator", "cor_code": "251201", "total": 1, "cut": 0},
         {"title": "Manual QA Engineer", "cor_code": "251201, 351202", "total": 17, "cut": 6},
+        {"title": "Monetization Operations Specialist", "cor_code": "251201", "total": 2, "cut": 0},
         {"title": "Product Owner (Tech)", "cor_code": "121904", "total": 1, "cut": 1},
+        {"title": "Product Senior Expert", "cor_code": "121904", "total": 1, "cut": 0},
+        {"title": "Program Lead", "cor_code": "251206", "total": 1, "cut": 0},
         {"title": "QA Automation Engineer", "cor_code": "251201, 251202, 351202", "total": 4, "cut": 1},
         {"title": "QA Automation Team Leader", "cor_code": "251206", "total": 1, "cut": 1},
+        {"title": "QA Technical Lead", "cor_code": "251201, 351202", "total": 2, "cut": 0},
+        {"title": "R&D Group Manager", "cor_code": "251206", "total": 3, "cut": 0},
         {"title": "R&D Team Leader", "cor_code": "122314, 251206", "total": 9, "cut": 2},
+        {"title": "Senior Director of Research & Development", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Technical Product Owner", "cor_code": "122314, 251206", "total": 2, "cut": 0},
+    ],
+    "Cross Communication": [
+        {"title": "Communication and Brand Manager", "cor_code": "243104", "total": 1, "cut": 1},
+    ],
+    "Cross Finance": [
+        {"title": "Bookkeeper", "cor_code": "263102", "total": 1, "cut": 0},
+    ],
+    "Cross HR": [
+        {"title": "HR Director", "cor_code": "121207", "total": 1, "cut": 0},
+        {"title": "HR Operations Specialist", "cor_code": "242314", "total": 2, "cut": 0},
+        {"title": "Talent Acquisition Specialist", "cor_code": "242309", "total": 2, "cut": 1},
+        {"title": "Talent Acquisition Team Lead", "cor_code": "121207", "total": 1, "cut": 0},
+    ],
+    "Cross Legal & Finance": [
+        {"title": "Chief Accountant", "cor_code": "112020", "total": 1, "cut": 0},
+        {"title": "Expert Corporate Counsel", "cor_code": "261103", "total": 1, "cut": 0},
+    ],
+    "Cross Operations": [
+        {"title": "HSE Responsible", "cor_code": "242304", "total": 1, "cut": 1},
     ],
     "Cross Slots Central": [
         {"title": "2D Animator", "cor_code": "251101", "total": 2, "cut": 2},
         {"title": "2D Artist", "cor_code": "251101, 251201, 351202", "total": 5, "cut": 4},
         {"title": "Animator", "cor_code": "251101, 251201", "total": 3, "cut": 3},
+        {"title": "Art Director", "cor_code": "251206", "total": 1, "cut": 0},
         {"title": "Art Team Leader", "cor_code": "251206", "total": 2, "cut": 2},
+        {"title": "Expert Animator", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "Expert Artist", "cor_code": "251101, 351202", "total": 2, "cut": 1},
+        {"title": "Lead Animator", "cor_code": "251101", "total": 1, "cut": 0},
+        {"title": "Product Owner", "cor_code": "251206", "total": 2, "cut": 1},
+        {"title": "Product Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
         {"title": "Technical Art Lead", "cor_code": "121904, 251101", "total": 2, "cut": 2},
+        {"title": "Technical Artist", "cor_code": "251101", "total": 1, "cut": 1},
+    ],
+    "Cross Technologies": [
+        {"title": "Incident Engineer", "cor_code": "251201, 351202", "total": 2, "cut": 1},
+        {"title": "Incident Engineer Expert", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "IT Service Specialist", "cor_code": "251101, 251203", "total": 2, "cut": 1},
+        {"title": "IT System Engineer", "cor_code": "251101", "total": 1, "cut": 0},
+        {"title": "Service Operations Analyst", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "Site Reliability Engineer", "cor_code": "251204", "total": 1, "cut": 0},
+        {"title": "SRE Expert", "cor_code": "251204", "total": 1, "cut": 0},
+        {"title": "SVP Technologies Program", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "System Operations Engineer", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Tech Project Management Expert", "cor_code": "121904", "total": 1, "cut": 0},
+        {"title": "Technical Account Manager", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "MIS Group Manager", "cor_code": "251206", "total": 1, "cut": 0},
+    ],
+    "HOF (House of Fun)": [
+        {"title": "Manual QA Engineer", "cor_code": "251201", "total": 2, "cut": 0},
+        {"title": "Monetization Operation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Monetization Operations Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Monetization Operations Specialist", "cor_code": "251201", "total": 1, "cut": 0},
+        {"title": "QA Technical Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Technical Art Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Technical Artist", "cor_code": "251101", "total": 1, "cut": 1},
+    ],
+    "SHARED TECH": [
+        {"title": "Director of Architecture", "cor_code": "251101", "total": 1, "cut": 1},
     ],
     "WSOP": [
+        {"title": "C# Developer", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Full Stack Developer", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Java Developer", "cor_code": "251202", "total": 14, "cut": 0},
+        {"title": "Java Technical Lead", "cor_code": "251202", "total": 3, "cut": 0},
+        {"title": "JavaScript Developer", "cor_code": "251202, 251204", "total": 3, "cut": 0},
+        {"title": "JavaScript Technical Lead", "cor_code": "251202", "total": 2, "cut": 0},
         {"title": "Manual QA Engineer", "cor_code": "251201, 351202", "total": 16, "cut": 3},
+        {"title": "Monetization Operation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
         {"title": "QA Automation Engineer", "cor_code": "251202, 351202", "total": 5, "cut": 2},
+        {"title": "QA Automation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
         {"title": "QA Manager", "cor_code": "251206", "total": 1, "cut": 1},
+        {"title": "QA Technical Lead", "cor_code": "251201, 351202", "total": 3, "cut": 0},
+        {"title": "R&D Director", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "R&D Group Manager", "cor_code": "251206", "total": 3, "cut": 0},
+        {"title": "R&D Team Leader", "cor_code": "251206", "total": 8, "cut": 0},
+        {"title": "Release Engineer", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Software Architect", "cor_code": "251101", "total": 2, "cut": 0},
         {"title": "Technical Artist", "cor_code": "251101, 351202", "total": 5, "cut": 2},
+        {"title": "Technical Product Owner", "cor_code": "251202", "total": 1, "cut": 0},
         {"title": "Unity Developer", "cor_code": "251202, 251204, 351201, 351202", "total": 18, "cut": 3},
+        {"title": "Unity Technical Lead", "cor_code": "251202, 251204", "total": 4, "cut": 0},
+        {"title": "VP of Research & Development", "cor_code": "112019", "total": 1, "cut": 0},
+    ],
+    "Youda": [
+        {"title": "Product Manager", "cor_code": "251206", "total": 1, "cut": 0},
     ],
 }
 
@@ -129,13 +211,11 @@ def init_db():
     """Initialize database with seed data"""
     db.create_all()
     
-    # Create admin
     if not Admin.query.first():
         admin = Admin(username='admin')
         admin.set_password(os.environ.get('ADMIN_PASSWORD', 'layoffs2024'))
         db.session.add(admin)
     
-    # Seed departments if empty
     if not Department.query.first():
         for dept_name, positions in SEED_DATA.items():
             dept = Department(name=dept_name, code=dept_name[:3].upper())
@@ -245,7 +325,7 @@ def update_position_cuts(id):
     pos = Position.query.get_or_404(id)
     pos.positions_to_cut = int(request.form.get('positions_to_cut', 0))
     db.session.commit()
-    flash(f'Updated: {pos.title} - {pos.positions_to_cut} to cut', 'success')
+    flash(f'Updated: {pos.title}', 'success')
     return redirect(url_for('admin_positions'))
 
 
@@ -267,13 +347,12 @@ def admin_candidates():
         bio = request.form.get('bio')
         odds = float(request.form.get('odds', 2.0))
         position_id = int(request.form.get('position_id'))
-        photo_filename = 'default.png'
         
         candidate = Candidate(name=name, bio=bio, odds=odds, 
-                            position_id=position_id, photo=photo_filename)
+                            position_id=position_id, photo='default.png')
         db.session.add(candidate)
         db.session.commit()
-        flash('Candidate added to the death pool! 💀', 'success')
+        flash('Candidate added! 💀', 'success')
         return redirect(url_for('admin_candidates'))
     
     candidates = Candidate.query.all()
@@ -304,7 +383,7 @@ def delete_candidate(id):
     candidate = Candidate.query.get_or_404(id)
     db.session.delete(candidate)
     db.session.commit()
-    flash('Candidate removed from the pool!', 'success')
+    flash('Candidate removed!', 'success')
     return redirect(url_for('admin_candidates'))
 
 
@@ -321,7 +400,7 @@ def mark_laid_off(id):
                 bet.won = True
                 winnings = int(bet.amount * bet.odds_at_bet)
                 bet.user.coins += winnings
-        flash(f'💀 {candidate.name} has been LAID OFF! Bets resolved.', 'danger')
+        flash(f'💀 {candidate.name} LAID OFF!', 'danger')
     else:
         flash(f'{candidate.name} status reset.', 'info')
     
@@ -376,12 +455,9 @@ def place_bet():
         return jsonify({'success': False, 'message': 'Invalid user or candidate'})
     
     if candidate.is_laid_off:
-        return jsonify({'success': False, 'message': 'Too late! They are already gone! 💀'})
+        return jsonify({'success': False, 'message': 'Too late! 💀'})
     
-    if amount <= 0:
-        return jsonify({'success': False, 'message': 'Bet amount must be positive'})
-    
-    if user.coins < amount:
+    if amount <= 0 or user.coins < amount:
         return jsonify({'success': False, 'message': 'Not enough coins! 💸'})
     
     user.coins -= amount
@@ -392,7 +468,7 @@ def place_bet():
     
     return jsonify({
         'success': True, 
-        'message': f'Bet placed on {candidate.name}! 🎰',
+        'message': f'Bet placed! 🎰',
         'remaining_coins': user.coins,
         'potential_win': int(amount * candidate.odds)
     })
@@ -407,17 +483,11 @@ def leaderboard():
 @app.route('/api/user/<int:id>')
 def api_user(id):
     user = User.query.get_or_404(id)
-    return jsonify({
-        'id': user.id,
-        'username': user.username,
-        'coins': user.coins
-    })
+    return jsonify({'id': user.id, 'username': user.username, 'coins': user.coins})
 
 
-# Initialize database on startup
+# Initialize on startup
 with app.app_context():
     init_db()
 
-
-# Vercel handler
 application = app
