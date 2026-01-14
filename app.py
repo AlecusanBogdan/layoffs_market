@@ -232,14 +232,17 @@ def admin_candidates():
         position_id = int(request.form.get('position_id'))
         
         photo_filename = 'default.png'
-        if 'photo' in request.files:
+        # File upload only works locally, not on Vercel (read-only filesystem)
+        if not IS_VERCEL and 'photo' in request.files:
             file = request.files['photo']
             if file and file.filename and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                # Add timestamp to avoid collisions
-                filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                photo_filename = filename
+                try:
+                    filename = secure_filename(file.filename)
+                    filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    photo_filename = filename
+                except Exception as e:
+                    print(f"Photo upload failed: {e}")
         
         candidate = Candidate(name=name, bio=bio, odds=odds, 
                             position_id=position_id, photo=photo_filename)
@@ -263,13 +266,17 @@ def edit_candidate(id):
         candidate.odds = float(request.form.get('odds', 2.0))
         candidate.position_id = int(request.form.get('position_id'))
         
-        if 'photo' in request.files:
+        # File upload only works locally, not on Vercel
+        if not IS_VERCEL and 'photo' in request.files:
             file = request.files['photo']
             if file and file.filename and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                candidate.photo = filename
+                try:
+                    filename = secure_filename(file.filename)
+                    filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    candidate.photo = filename
+                except Exception:
+                    pass
         
         db.session.commit()
         flash('Candidate updated!', 'success')
