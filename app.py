@@ -535,7 +535,7 @@ def init_db():
     except Exception as e:
         print(f"Admin setup error: {e}")
     
-    # Seed departments and positions if empty (for Vercel in-memory DB)
+    # Seed departments and positions if empty
     try:
         if not Department.query.first():
             for dept_name, positions in SEED_DATA.items():
@@ -555,6 +555,25 @@ def init_db():
             
             db.session.commit()
             print("Database seeded with departments and positions")
+            
+            # Seed candidates
+            cc_dept = Department.query.filter_by(name="CC (Caesars Slots)").first()
+            if cc_dept:
+                qa_pos = Position.query.filter_by(
+                    department_id=cc_dept.id, 
+                    title="Manual QA Engineer"
+                ).first()
+                if qa_pos:
+                    candidate = Candidate(
+                        name="Octavian Cristea",
+                        position_id=qa_pos.id,
+                        odds=2.0,
+                        bio="Senior QA Engineer",
+                        photo="default.png"
+                    )
+                    db.session.add(candidate)
+                    db.session.commit()
+                    print("Candidate seeded: Octavian Cristea")
     except Exception as e:
         print(f"Seed error: {e}")
 
