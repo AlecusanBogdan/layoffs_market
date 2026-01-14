@@ -7,20 +7,14 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import random
 
-# Detect if running on Vercel (from api/ subdirectory)
-IS_VERCEL = os.environ.get('VERCEL', False) or os.path.exists('/var/task')
+# Detect if running on Vercel
+IS_VERCEL = os.environ.get('VERCEL') == '1'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Configure Flask app with correct paths
-if IS_VERCEL or 'api' in BASE_DIR:
-    # Running from api/ directory on Vercel
-    PARENT_DIR = os.path.dirname(BASE_DIR)
-    app = Flask(__name__, 
-                template_folder=os.path.join(PARENT_DIR, 'templates'),
-                static_folder=os.path.join(PARENT_DIR, 'static'))
-else:
-    # Running locally
-    app = Flask(__name__)
+# Flask app - templates and static are in the same directory as app.py
+app = Flask(__name__,
+            template_folder=os.path.join(BASE_DIR, 'templates'),
+            static_folder=os.path.join(BASE_DIR, 'static'))
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'the-layoffs-are-coming-winter-is-here')
 
