@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{{ department.name }}{% endblock %}
+
+{% block content %}
+<section class="department-hero">
+    <a href="{{ url_for('index') }}" class="back-link">← Back to Departments</a>
+    <h1 class="dept-title">
+        <span class="dept-icon">🏭</span>
+        {{ department.name }}
+    </h1>
+    {% if department.code %}
+    <span class="dept-code-badge">{{ department.code }}</span>
+    {% endif %}
+</section>
+
+<section class="positions-section">
+    {% for position in department.positions %}
+    <div class="position-block">
+        <div class="position-header">
+            <h2 class="position-title">
+                <span class="danger-icon">⚠️</span>
+                {{ position.title }}
+            </h2>
+            <div class="position-meta">
+                {% if position.cor_code %}
+                <span class="cor-code">{{ position.cor_code }}</span>
+                {% endif %}
+                <span class="cuts-badge">
+                    🪓 {{ position.positions_to_cut }} position(s) to cut
+                </span>
+            </div>
+        </div>
+        
+        <div class="candidates-grid">
+            {% for candidate in position.candidates %}
+            <div class="candidate-card {% if candidate.is_laid_off %}laid-off{% endif %}" 
+                 data-candidate-id="{{ candidate.id }}"
+                 data-odds="{{ candidate.odds }}">
+                
+                {% if candidate.is_laid_off %}
+                <div class="laid-off-stamp">LAID OFF 💀</div>
+                {% endif %}
+                
+                <div class="candidate-photo">
+                    <img src="{{ url_for('static', filename='uploads/' + candidate.photo) }}" 
+                         alt="{{ candidate.name }}"
+                         onerror="this.src='{{ url_for('static', filename='img/default-avatar.svg') }}'">
+                </div>
+                
+                <div class="candidate-info">
+                    <h3 class="candidate-name">{{ candidate.name }}</h3>
+                    {% if candidate.bio %}
+                    <p class="candidate-bio">{{ candidate.bio }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="odds-display">
+                    <span class="odds-label">Odds</span>
+                    <span class="odds-value">{{ "%.2f"|format(candidate.odds) }}x</span>
+                </div>
+                
+                {% if not candidate.is_laid_off %}
+                <div class="bet-controls">
+                    <input type="number" class="bet-amount" min="1" max="10000" value="100" placeholder="Amount">
+                    <button class="btn btn-bet" onclick="placeBet({{ candidate.id }}, this)">
+                        Place Bet 🎰
+                    </button>
+                    <div class="potential-win">
+                        Potential win: <span class="win-amount">{{ "%.0f"|format(100 * candidate.odds) }}</span> 💰
+                    </div>
+                </div>
+                {% else %}
+                <div class="bet-closed">
+                    Betting Closed
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="empty-candidates">
+                <p>🤷 No candidates added yet for this position</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>📝 No positions defined for this department yet</p>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update potential win on input change
+document.querySelectorAll('.bet-amount').forEach(input => {
+    input.addEventListener('input', (e) => {
+        const card = e.target.closest('.candidate-card');
+        const odds = parseFloat(card.dataset.odds);
+        const amount = parseInt(e.target.value) || 0;
+        card.querySelector('.win-amount').textContent = Math.floor(amount * odds);
+    });
+});
+
+async function placeBet(candidateId, button) {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+        alert('You need to register first! Go back to the home page.');
+        return;
+    }
+    
+    const card = button.closest('.candidate-card');
+    const amount = parseInt(card.querySelector('.bet-amount').value);
+    
+    const response = await fetch('/bet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            user_id: parseInt(userId),
+            candidate_id: candidateId,
+            amount: amount
+        })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+        alert(data.message + `\nPotential win: ${data.potential_win} coins!`);
+        localStorage.setItem('coins', data.remaining_coins);
+        updateUserPanel();
+    } else {
+        alert('❌ ' + data.message);
+    }
+}
+</script>
+{% endblock %}
+

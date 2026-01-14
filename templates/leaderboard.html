@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<section class="leaderboard-section">
+    <h1 class="page-title">🏆 Leaderboard</h1>
+    <p class="page-subtitle">The Masters of Misfortune</p>
+    
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <span class="rank-col">Rank</span>
+            <span class="name-col">Gambler</span>
+            <span class="coins-col">Coins</span>
+        </div>
+        
+        {% for user in users %}
+        <div class="leaderboard-row {% if loop.index <= 3 %}top-three rank-{{ loop.index }}{% endif %}">
+            <span class="rank-col">
+                {% if loop.index == 1 %}
+                🥇
+                {% elif loop.index == 2 %}
+                🥈
+                {% elif loop.index == 3 %}
+                🥉
+                {% else %}
+                #{{ loop.index }}
+                {% endif %}
+            </span>
+            <span class="name-col">
+                <a href="{{ url_for('user_profile', id=user.id) }}">{{ user.username }}</a>
+            </span>
+            <span class="coins-col">{{ user.coins }} 💰</span>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>🎰 No gamblers yet! Be the first to join!</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+

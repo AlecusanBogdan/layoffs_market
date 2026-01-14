@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="profile-header">
+        <h1 class="profile-name">🎰 {{ user.username }}</h1>
+        <div class="profile-stats">
+            <div class="stat">
+                <span class="stat-value">{{ user.coins }}</span>
+                <span class="stat-label">💰 Coins</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">{{ user.bets|length }}</span>
+                <span class="stat-label">🎲 Total Bets</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">{{ user.bets|selectattr('won')|list|length }}</span>
+                <span class="stat-label">🏆 Wins</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bets-history">
+        <h2>📜 Betting History</h2>
+        
+        <div class="bets-list">
+            {% for bet in user.bets|sort(attribute='created_at', reverse=true) %}
+            <div class="bet-item {% if bet.is_resolved %}{% if bet.won %}won{% else %}lost{% endif %}{% else %}pending{% endif %}">
+                <div class="bet-target">
+                    <span class="bet-icon">🎯</span>
+                    <span class="bet-name">{{ bet.candidate.name }}</span>
+                    <span class="bet-position">{{ bet.candidate.position.title }}</span>
+                </div>
+                <div class="bet-details">
+                    <span class="bet-amount">{{ bet.amount }} coins @ {{ "%.2f"|format(bet.odds_at_bet) }}x</span>
+                    <span class="bet-date">{{ bet.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="bet-status">
+                    {% if bet.is_resolved %}
+                        {% if bet.won %}
+                        <span class="status won">WON +{{ (bet.amount * bet.odds_at_bet)|int }} 🎉</span>
+                        {% else %}
+                        <span class="status lost">LOST 💀</span>
+                        {% endif %}
+                    {% else %}
+                    <span class="status pending">Pending ⏳</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>🎲 No bets placed yet!</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Start Betting</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+

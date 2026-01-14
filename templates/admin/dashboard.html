@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}📊 Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+            <span class="stat-number">{{ total_employees }}</span>
+            <span class="stat-label">Total Employees</span>
+        </div>
+    </div>
+    
+    <div class="stat-card danger">
+        <div class="stat-icon">🪓</div>
+        <div class="stat-content">
+            <span class="stat-number">{{ total_to_cut }}</span>
+            <span class="stat-label">Positions to Cut</span>
+        </div>
+    </div>
+    
+    <div class="stat-card warning">
+        <div class="stat-icon">👤</div>
+        <div class="stat-content">
+            <span class="stat-number">{{ total_candidates }}</span>
+            <span class="stat-label">Candidates Added</span>
+        </div>
+    </div>
+    
+    <div class="stat-card success">
+        <div class="stat-icon">🎰</div>
+        <div class="stat-content">
+            <span class="stat-number">{{ total_bets }}</span>
+            <span class="stat-label">Total Bets</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-sections">
+    <section class="dashboard-section">
+        <h2>🏢 Departments Overview</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>👥 Employees</th>
+                        <th>🪓 To Cut</th>
+                        <th>Candidates</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td>{{ dept.name }}</td>
+                        <td>{{ dept.positions|sum(attribute='total_employees') }}</td>
+                        <td class="danger">{{ dept.positions|sum(attribute='positions_to_cut') }}</td>
+                        <td>{% set ns = namespace(count=0) %}{% for pos in dept.positions %}{% set ns.count = ns.count + pos.candidates|length %}{% endfor %}{{ ns.count }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="empty">No departments yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+    <section class="quick-actions">
+        <h2>⚡ Quick Actions</h2>
+        <div class="actions-grid">
+            <a href="{{ url_for('admin_departments') }}" class="action-card">
+                <span class="action-icon">🏢</span>
+                <span class="action-label">Add Department</span>
+            </a>
+            <a href="{{ url_for('admin_positions') }}" class="action-card">
+                <span class="action-icon">💼</span>
+                <span class="action-label">Add Position</span>
+            </a>
+            <a href="{{ url_for('admin_candidates') }}" class="action-card">
+                <span class="action-icon">👤</span>
+                <span class="action-label">Add Candidate</span>
+            </a>
+            <a href="{{ url_for('leaderboard') }}" class="action-card">
+                <span class="action-icon">🏆</span>
+                <span class="action-label">View Leaderboard</span>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

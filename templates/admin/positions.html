@@ -1,0 +1,103 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Positions{% endblock %}
+{% block page_title %}💼 Positions{% endblock %}
+
+{% block content %}
+<div class="admin-grid">
+    <section class="form-section">
+        <h2>➕ Add Position</h2>
+        <form method="POST" class="admin-form">
+            <div class="form-group">
+                <label for="department_id">Department *</label>
+                <select id="department_id" name="department_id" required>
+                    <option value="">Select department...</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="title">Position Title *</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="e.g., C# Developer">
+            </div>
+            <div class="form-group">
+                <label for="cor_code">COR Code</label>
+                <input type="text" id="cor_code" name="cor_code" 
+                       placeholder="e.g., 251202">
+            </div>
+            <div class="form-group">
+                <label for="total_employees">Total Employees</label>
+                <input type="number" id="total_employees" name="total_employees" 
+                       min="0" value="0">
+                <small>Total headcount in this position</small>
+            </div>
+            <div class="form-group">
+                <label for="positions_to_cut">Positions to Cut 🪓</label>
+                <input type="number" id="positions_to_cut" name="positions_to_cut" 
+                       min="0" value="0">
+                <small>How many will be laid off</small>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                ➕ Add Position
+            </button>
+        </form>
+    </section>
+    
+    <section class="list-section">
+        <h2>📋 Existing Positions ({{ positions|length }})</h2>
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>COR Code</th>
+                        <th>👥 Total</th>
+                        <th>🪓 To Cut</th>
+                        <th>Candidates</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pos in positions %}
+                    <tr>
+                        <td>{{ pos.department.name }}</td>
+                        <td>{{ pos.title }}</td>
+                        <td class="small">{{ pos.cor_code or '-' }}</td>
+                        <td>{{ pos.total_employees }}</td>
+                        <td class="danger">
+                            <form method="POST" action="{{ url_for('update_position_cuts', id=pos.id) }}" style="display: inline-flex; gap: 5px; align-items: center;">
+                                <input type="number" name="positions_to_cut" value="{{ pos.positions_to_cut }}" 
+                                       min="0" max="{{ pos.total_employees }}" style="width: 60px; padding: 4px;">
+                                <button type="submit" class="btn btn-sm" title="Update">💾</button>
+                            </form>
+                        </td>
+                        <td>{{ pos.candidates|length }}</td>
+                        <td class="actions">
+                            <form method="POST" action="{{ url_for('delete_position', id=pos.id) }}" 
+                                  onsubmit="return confirm('Delete position and ALL its candidates?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty">No positions yet. Add one above!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if positions %}
+        <div class="summary-stats" style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius);">
+            <strong>Summary:</strong> 
+            👥 {{ positions|sum(attribute='total_employees') }} total employees | 
+            🪓 {{ positions|sum(attribute='positions_to_cut') }} positions to cut
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

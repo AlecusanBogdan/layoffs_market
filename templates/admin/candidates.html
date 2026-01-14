@@ -1,0 +1,99 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Candidates{% endblock %}
+{% block page_title %}👤 Candidates (The Death Pool){% endblock %}
+
+{% block content %}
+<div class="admin-grid">
+    <section class="form-section">
+        <h2>➕ Add Candidate</h2>
+        <form method="POST" class="admin-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="position_id">Position *</label>
+                <select id="position_id" name="position_id" required>
+                    <option value="">Select position...</option>
+                    {% for pos in positions %}
+                    <option value="{{ pos.id }}">{{ pos.department.name }} → {{ pos.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required 
+                       placeholder="e.g., Ion Popescu">
+            </div>
+            <div class="form-group">
+                <label for="photo">Photo</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+                <small>Recommended: Square image, max 2MB</small>
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio / Notes</label>
+                <textarea id="bio" name="bio" rows="3" 
+                          placeholder="e.g., Always late to meetings, drinks 5 coffees a day..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="odds">Odds (cote) *</label>
+                <input type="number" id="odds" name="odds" 
+                       min="1.01" max="100" step="0.01" value="2.00" required>
+                <small>Higher odds = less likely to be laid off = bigger payout</small>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                💀 Add to Death Pool
+            </button>
+        </form>
+    </section>
+    
+    <section class="list-section">
+        <h2>📋 Candidates List</h2>
+        <div class="candidates-admin-grid">
+            {% for candidate in candidates %}
+            <div class="candidate-admin-card {% if candidate.is_laid_off %}laid-off{% endif %}">
+                <div class="candidate-photo">
+                    <img src="{{ url_for('static', filename='uploads/' + candidate.photo) }}" 
+                         alt="{{ candidate.name }}"
+                         onerror="this.src='{{ url_for('static', filename='img/default-avatar.svg') }}'">
+                    {% if candidate.is_laid_off %}
+                    <div class="laid-off-overlay">💀 LAID OFF</div>
+                    {% endif %}
+                </div>
+                <div class="candidate-details">
+                    <h3>{{ candidate.name }}</h3>
+                    <p class="position">{{ candidate.position.department.name }} → {{ candidate.position.title }}</p>
+                    <div class="odds-badge">
+                        Odds: <strong>{{ "%.2f"|format(candidate.odds) }}x</strong>
+                    </div>
+                    {% if candidate.bio %}
+                    <p class="bio">{{ candidate.bio }}</p>
+                    {% endif %}
+                </div>
+                <div class="candidate-actions">
+                    <a href="{{ url_for('edit_candidate', id=candidate.id) }}" class="btn btn-sm">✏️ Edit</a>
+                    
+                    <form method="POST" action="{{ url_for('mark_laid_off', id=candidate.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm {% if candidate.is_laid_off %}btn-success{% else %}btn-danger{% endif %}">
+                            {% if candidate.is_laid_off %}
+                            ↩️ Undo
+                            {% else %}
+                            🪓 Mark Laid Off
+                            {% endif %}
+                        </button>
+                    </form>
+                    
+                    <form method="POST" action="{{ url_for('delete_candidate', id=candidate.id) }}" 
+                          style="display:inline;"
+                          onsubmit="return confirm('Delete this candidate?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>👻 No candidates yet. Add some above!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+

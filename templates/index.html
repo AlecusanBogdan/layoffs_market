@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <span class="glitch" data-text="LAYOFF">LAYOFF</span>
+            <span class="market">MARKET</span>
+        </h1>
+        <p class="hero-subtitle">Place your bets on who's getting the axe! 🪓</p>
+        <p class="hero-tagline">"It's not personal, it's just business" - Management, probably</p>
+        
+        <div class="register-box" id="registerBox">
+            <h3>🎰 Join the Pool</h3>
+            <p>Get 1000 coins free to start betting!</p>
+            <form id="registerForm">
+                <input type="text" id="username" placeholder="Enter your gambler name..." required>
+                <button type="submit" class="btn btn-primary">Start Betting 💸</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="hero-stats">
+        <div class="stat-card">
+            <span class="stat-number">{{ departments|length }}</span>
+            <span class="stat-label">Departments</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ total_employees }}</span>
+            <span class="stat-label">Total Employees</span>
+        </div>
+        <div class="stat-card danger">
+            <span class="stat-number">{{ total_to_cut }}</span>
+            <span class="stat-label">Positions to Cut</span>
+        </div>
+    </div>
+</section>
+
+<section class="departments-section">
+    <h2 class="section-title">🏢 Departments on the Chopping Block</h2>
+    
+    <div class="departments-grid">
+        {% for dept in departments %}
+        <a href="{{ url_for('department_view', id=dept.id) }}" class="department-card">
+            <div class="dept-header">
+                <span class="dept-icon">🏭</span>
+                <h3>{{ dept.name }}</h3>
+                {% if dept.code %}
+                <span class="dept-code">{{ dept.code }}</span>
+                {% endif %}
+            </div>
+            <div class="dept-stats">
+                <div class="dept-stat">
+                    <span class="number">{{ dept.positions|sum(attribute='total_employees') }}</span>
+                    <span class="label">Employees</span>
+                </div>
+                <div class="dept-stat danger">
+                    <span class="number">{{ dept.positions|sum(attribute='positions_to_cut') }}</span>
+                    <span class="label">To Cut</span>
+                </div>
+                <div class="dept-stat">
+                    <span class="number">{{ dept.positions|length }}</span>
+                    <span class="label">Positions</span>
+                </div>
+            </div>
+            <div class="dept-cta">
+                View Targets →
+            </div>
+        </a>
+        {% else %}
+        <div class="empty-state">
+            <p>🎉 No departments yet! Maybe everyone is safe?</p>
+            <p class="small">(Admin needs to add some departments first)</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2 class="section-title">📖 How It Works</h2>
+    <div class="steps-grid">
+        <div class="step">
+            <span class="step-number">1</span>
+            <span class="step-icon">🎰</span>
+            <h3>Register</h3>
+            <p>Get your starting coins and enter the pool</p>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <span class="step-icon">👀</span>
+            <h3>Browse</h3>
+            <p>Check out the candidates and their odds</p>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <span class="step-icon">💸</span>
+            <h3>Bet</h3>
+            <p>Place your bets on who gets the boot</p>
+        </div>
+        <div class="step">
+            <span class="step-number">4</span>
+            <span class="step-icon">🏆</span>
+            <h3>Win</h3>
+            <p>Cash in when predictions come true!</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    
+    const response = await fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `username=${encodeURIComponent(username)}`
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+        localStorage.setItem('user_id', data.user_id);
+        localStorage.setItem('username', username);
+        localStorage.setItem('coins', data.coins);
+        updateUserPanel();
+        document.getElementById('registerBox').innerHTML = `
+            <div class="welcome-back">
+                <h3>🎉 Welcome, ${username}!</h3>
+                <p>You have <span class="coins">${data.coins}</span> coins</p>
+                <p>Start browsing departments to place your bets!</p>
+            </div>
+        `;
+    } else {
+        alert(data.message);
+    }
+});
+</script>
+{% endblock %}
+

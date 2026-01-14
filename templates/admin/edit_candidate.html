@@ -1,0 +1,62 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit {{ candidate.name }}{% endblock %}
+{% block page_title %}✏️ Edit Candidate{% endblock %}
+
+{% block content %}
+<div class="edit-form-container">
+    <a href="{{ url_for('admin_candidates') }}" class="back-link">← Back to Candidates</a>
+    
+    <form method="POST" class="admin-form" enctype="multipart/form-data">
+        <div class="form-row">
+            <div class="current-photo">
+                <img src="{{ url_for('static', filename='uploads/' + candidate.photo) }}" 
+                     alt="{{ candidate.name }}"
+                     onerror="this.src='{{ url_for('static', filename='img/default-avatar.svg') }}'">
+            </div>
+            <div class="form-fields">
+                <div class="form-group">
+                    <label for="position_id">Position *</label>
+                    <select id="position_id" name="position_id" required>
+                        {% for pos in positions %}
+                        <option value="{{ pos.id }}" {% if pos.id == candidate.position_id %}selected{% endif %}>
+                            {{ pos.department.name }} → {{ pos.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required value="{{ candidate.name }}">
+                </div>
+                <div class="form-group">
+                    <label for="photo">New Photo (leave empty to keep current)</label>
+                    <input type="file" id="photo" name="photo" accept="image/*">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="bio">Bio / Notes</label>
+            <textarea id="bio" name="bio" rows="3">{{ candidate.bio or '' }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="odds">Odds (cote) *</label>
+            <input type="number" id="odds" name="odds" 
+                   min="1.01" max="100" step="0.01" value="{{ candidate.odds }}" required>
+            <small>Higher odds = less likely to be laid off = bigger payout</small>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                💾 Save Changes
+            </button>
+            <a href="{{ url_for('admin_candidates') }}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
