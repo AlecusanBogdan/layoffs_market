@@ -7,14 +7,35 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import random
 
-app = Flask(__name__)
+# Detect if running on Vercel (from api/ subdirectory)
+IS_VERCEL = os.environ.get('VERCEL', False) or os.path.exists('/var/task')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Configure Flask app with correct paths
+if IS_VERCEL or 'api' in BASE_DIR:
+    # Running from api/ directory on Vercel
+    PARENT_DIR = os.path.dirname(BASE_DIR)
+    app = Flask(__name__, 
+                template_folder=os.path.join(PARENT_DIR, 'templates'),
+                static_folder=os.path.join(PARENT_DIR, 'static'))
+else:
+    # Running locally
+    app = Flask(__name__)
+
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'the-layoffs-are-coming-winter-is-here')
 
-# Database configuration - use environment variable or default to SQLite
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///layoffs_market.db')
-# Fix for postgres:// vs postgresql:// (Heroku/Vercel compatibility)
+# Database configuration
+# On Vercel serverless, use in-memory SQLite (data resets each request)
+# For persistent data, set DATABASE_URL environment variable
+if IS_VERCEL and not os.environ.get('DATABASE_URL'):
+    database_url = 'sqlite:///:memory:'
+else:
+    database_url = os.environ.get('DATABASE_URL', 'sqlite:///layoffs_market.db')
+    
+# Fix for postgres:// vs postgresql://
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'static/uploads')
@@ -392,10 +413,120 @@ def api_user(id):
     })
 
 
+# ============== SEED DATA ==============
+SEED_DATA = {
+    "Boost": [{"title": "Machine Learning Engineer", "cor_code": "251204", "total": 1, "cut": 0}],
+    "CC (Caesars Slots)": [
+        {"title": "2D Animator", "cor_code": "251101", "total": 1, "cut": 0},
+        {"title": "2D Artist", "cor_code": "251101, 251201", "total": 7, "cut": 1},
+        {"title": "Animator", "cor_code": "251101", "total": 3, "cut": 1},
+        {"title": "Art Group Manager", "cor_code": "122314", "total": 1, "cut": 0},
+        {"title": "Art Team Leader", "cor_code": "122314, 251206", "total": 2, "cut": 0},
+        {"title": "C# Developer", "cor_code": "251202, 251204, 351201", "total": 17, "cut": 10},
+        {"title": "C# Technical Lead", "cor_code": "251202, 251204", "total": 5, "cut": 0},
+        {"title": "Copywriter", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Flash Integrator", "cor_code": "251101, 351202", "total": 7, "cut": 3},
+        {"title": "Java Developer", "cor_code": "251202, 251204", "total": 11, "cut": 0},
+        {"title": "Java Technical Lead", "cor_code": "121904, 251202, 251204", "total": 5, "cut": 0},
+        {"title": "JavaScript Developer", "cor_code": "251202, 251204", "total": 2, "cut": 0},
+        {"title": "JavaScript Technical Lead", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Lead Animator", "cor_code": "251201", "total": 1, "cut": 0},
+        {"title": "Manual QA Engineer", "cor_code": "251201, 351202", "total": 17, "cut": 6},
+        {"title": "Monetization Operations Specialist", "cor_code": "251201", "total": 2, "cut": 0},
+        {"title": "Product Owner (Tech)", "cor_code": "121904", "total": 1, "cut": 1},
+        {"title": "Product Senior Expert", "cor_code": "121904", "total": 1, "cut": 0},
+        {"title": "Program Lead", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "QA Automation Engineer", "cor_code": "251201, 251202, 351202", "total": 4, "cut": 1},
+        {"title": "QA Automation Team Leader", "cor_code": "251206", "total": 1, "cut": 1},
+        {"title": "QA Technical Lead", "cor_code": "251201, 351202", "total": 2, "cut": 0},
+        {"title": "R&D Group Manager", "cor_code": "251206", "total": 3, "cut": 0},
+        {"title": "R&D Team Leader", "cor_code": "122314, 251206", "total": 9, "cut": 2},
+        {"title": "Senior Director of Research & Development", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Technical Product Owner", "cor_code": "122314, 251206", "total": 2, "cut": 0},
+    ],
+    "Cross Communication": [{"title": "Communication and Brand Manager", "cor_code": "243104", "total": 1, "cut": 1}],
+    "Cross Finance": [{"title": "Bookkeeper", "cor_code": "263102", "total": 1, "cut": 0}],
+    "Cross HR": [
+        {"title": "HR Director", "cor_code": "121207", "total": 1, "cut": 0},
+        {"title": "HR Operations Specialist", "cor_code": "242314", "total": 2, "cut": 0},
+        {"title": "Talent Acquisition Specialist", "cor_code": "242309", "total": 2, "cut": 1},
+        {"title": "Talent Acquisition Team Lead", "cor_code": "121207", "total": 1, "cut": 0},
+    ],
+    "Cross Legal & Finance": [
+        {"title": "Chief Accountant", "cor_code": "112020", "total": 1, "cut": 0},
+        {"title": "Expert Corporate Counsel", "cor_code": "261103", "total": 1, "cut": 0},
+    ],
+    "Cross Operations": [{"title": "HSE Responsible", "cor_code": "242304", "total": 1, "cut": 1}],
+    "Cross Slots Central": [
+        {"title": "2D Animator", "cor_code": "251101", "total": 2, "cut": 2},
+        {"title": "2D Artist", "cor_code": "251101, 251201, 351202", "total": 5, "cut": 4},
+        {"title": "Animator", "cor_code": "251101, 251201", "total": 3, "cut": 3},
+        {"title": "Art Director", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Art Team Leader", "cor_code": "251206", "total": 2, "cut": 2},
+        {"title": "Expert Animator", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "Expert Artist", "cor_code": "251101, 351202", "total": 2, "cut": 1},
+        {"title": "Lead Animator", "cor_code": "251101", "total": 1, "cut": 0},
+        {"title": "Product Owner", "cor_code": "251206", "total": 2, "cut": 1},
+        {"title": "Product Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Technical Art Lead", "cor_code": "121904, 251101", "total": 2, "cut": 2},
+        {"title": "Technical Artist", "cor_code": "251101", "total": 1, "cut": 1},
+    ],
+    "Cross Technologies": [
+        {"title": "Incident Engineer", "cor_code": "251201, 351202", "total": 2, "cut": 1},
+        {"title": "Incident Engineer Expert", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "IT Service Specialist", "cor_code": "251101, 251203", "total": 2, "cut": 1},
+        {"title": "IT System Engineer", "cor_code": "251101", "total": 1, "cut": 0},
+        {"title": "Service Operations Analyst", "cor_code": "351202", "total": 1, "cut": 1},
+        {"title": "Site Reliability Engineer", "cor_code": "251204", "total": 1, "cut": 0},
+        {"title": "SRE Expert", "cor_code": "251204", "total": 1, "cut": 0},
+        {"title": "SVP Technologies Program", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "System Operations Engineer", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Tech Project Management Expert", "cor_code": "121904", "total": 1, "cut": 0},
+        {"title": "Technical Account Manager", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "MIS Group Manager", "cor_code": "251206", "total": 1, "cut": 0},
+    ],
+    "HOF (House of Fun)": [
+        {"title": "Manual QA Engineer", "cor_code": "251201", "total": 2, "cut": 0},
+        {"title": "Monetization Operation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Monetization Operations Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Monetization Operations Specialist", "cor_code": "251201", "total": 1, "cut": 0},
+        {"title": "QA Technical Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Technical Art Lead", "cor_code": "351202", "total": 1, "cut": 0},
+        {"title": "Technical Artist", "cor_code": "251101", "total": 1, "cut": 1},
+    ],
+    "SHARED TECH": [{"title": "Director of Architecture", "cor_code": "251101", "total": 1, "cut": 1}],
+    "WSOP": [
+        {"title": "C# Developer", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Full Stack Developer", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Java Developer", "cor_code": "251202", "total": 14, "cut": 0},
+        {"title": "Java Technical Lead", "cor_code": "251202", "total": 3, "cut": 0},
+        {"title": "JavaScript Developer", "cor_code": "251202, 251204", "total": 3, "cut": 0},
+        {"title": "JavaScript Technical Lead", "cor_code": "251202", "total": 2, "cut": 0},
+        {"title": "Manual QA Engineer", "cor_code": "251201, 351202", "total": 16, "cut": 3},
+        {"title": "Monetization Operation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "QA Automation Engineer", "cor_code": "251202, 351202", "total": 5, "cut": 2},
+        {"title": "QA Automation Team Leader", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "QA Manager", "cor_code": "251206", "total": 1, "cut": 1},
+        {"title": "QA Technical Lead", "cor_code": "251201, 351202", "total": 3, "cut": 0},
+        {"title": "R&D Director", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "R&D Group Manager", "cor_code": "251206", "total": 3, "cut": 0},
+        {"title": "R&D Team Leader", "cor_code": "251206", "total": 8, "cut": 0},
+        {"title": "Release Engineer", "cor_code": "251206", "total": 1, "cut": 0},
+        {"title": "Software Architect", "cor_code": "251101", "total": 2, "cut": 0},
+        {"title": "Technical Artist", "cor_code": "251101, 351202", "total": 5, "cut": 2},
+        {"title": "Technical Product Owner", "cor_code": "251202", "total": 1, "cut": 0},
+        {"title": "Unity Developer", "cor_code": "251202, 251204, 351201, 351202", "total": 18, "cut": 3},
+        {"title": "Unity Technical Lead", "cor_code": "251202, 251204", "total": 4, "cut": 0},
+        {"title": "VP of Research & Development", "cor_code": "112019", "total": 1, "cut": 0},
+    ],
+    "Youda": [{"title": "Product Manager", "cor_code": "251206", "total": 1, "cut": 0}],
+}
+
+
 # ============== INIT ==============
 
 def init_db():
-    """Initialize database and create default admin"""
+    """Initialize database, create admin, and seed data if empty"""
     db.create_all()
     
     # Create default admin if not exists
@@ -407,7 +538,30 @@ def init_db():
             db.session.commit()
             print("Default admin created: admin / layoffs2024")
     except Exception as e:
-        print(f"Admin setup error (may already exist): {e}")
+        print(f"Admin setup error: {e}")
+    
+    # Seed departments and positions if empty (for Vercel in-memory DB)
+    try:
+        if not Department.query.first():
+            for dept_name, positions in SEED_DATA.items():
+                dept = Department(name=dept_name, code=dept_name[:3].upper())
+                db.session.add(dept)
+                db.session.flush()
+                
+                for pos_data in positions:
+                    position = Position(
+                        title=pos_data["title"],
+                        cor_code=pos_data["cor_code"],
+                        total_employees=pos_data["total"],
+                        positions_to_cut=pos_data["cut"],
+                        department_id=dept.id
+                    )
+                    db.session.add(position)
+            
+            db.session.commit()
+            print("Database seeded with departments and positions")
+    except Exception as e:
+        print(f"Seed error: {e}")
 
 
 if __name__ == '__main__':
