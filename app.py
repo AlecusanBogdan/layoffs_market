@@ -19,18 +19,19 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'the-layoffs-are-coming-winter-is-here')
 
 # Database configuration
-# On Vercel serverless, use in-memory SQLite (data resets each request)
-# For persistent data, set DATABASE_URL environment variable
-if IS_VERCEL and not os.environ.get('DATABASE_URL'):
-    database_url = 'sqlite:///:memory:'
-else:
-    database_url = os.environ.get('DATABASE_URL', 'sqlite:///layoffs_market.db')
-    
-# Fix for postgres:// vs postgresql://
+# Priority: POSTGRES_URL (Vercel) > DATABASE_URL > SQLite
+database_url = (
+    os.environ.get('POSTGRES_URL') or  # Vercel Postgres
+    os.environ.get('DATABASE_URL') or  # Generic
+    ('sqlite:///:memory:' if IS_VERCEL else 'sqlite:///layoffs_market.db')
+)
+
+# Fix for postgres:// vs postgresql:// (required by SQLAlchemy)
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
     
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+print(f"Database: {'PostgreSQL' if 'postgresql' in database_url else 'SQLite'}")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'static/uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
