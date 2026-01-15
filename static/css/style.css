@@ -584,7 +584,7 @@ body {
 
 .laid-off-stamp {
     position: absolute;
-    top: 70%;
+    top: 55%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-15deg);
     background: var(--danger);
@@ -691,9 +691,12 @@ body {
 .bet-closed {
     padding: 1rem;
     text-align: center;
-    background: var(--bg-secondary);
-    color: var(--text-muted);
-    font-weight: 600;
+    background: var(--danger);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 15;
 }
 
 .empty-candidates {
