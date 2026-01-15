@@ -584,17 +584,18 @@ body {
 
 .laid-off-stamp {
     position: absolute;
-    top: 50%;
+    top: 70%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-15deg);
     background: var(--danger);
     color: white;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     z-index: 10;
     box-shadow: var(--shadow);
     border: 3px solid white;
+    white-space: nowrap;
 }
 
 .candidate-photo {
