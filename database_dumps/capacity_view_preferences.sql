@@ -1,0 +1,1 @@
+INSERT INTO public.capacity_view_preferences (id, user_id, view_layout, period_type, show_legend, filters, last_viewed_date, "createdAt", "updatedAt") VALUES ('34943203-19b0-4253-8887-1b8e5e01c387', 'default-user', 'gantt', 'sprint', true, '{"searchTerm": "", "disciplines": []}', '2025-11-27 12:56:59.504', '2025-11-27 12:56:59.598', '2025-11-27 12:57:47.582');

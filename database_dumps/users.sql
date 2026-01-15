@@ -1,0 +1,1 @@
+INSERT INTO public.users (id, email, name, role, "createdAt", "updatedAt") VALUES ('8779a7ca-bb4f-4004-8eba-85b6e5c1a937', 'admin@teamleader.local', 'Admin User', 'admin', '2025-11-21 11:22:57.389', '2025-11-21 11:22:57.389');

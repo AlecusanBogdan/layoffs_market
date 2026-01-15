@@ -10,9 +10,14 @@
     <form method="POST" class="admin-form" enctype="multipart/form-data">
         <div class="form-row">
             <div class="current-photo">
+                {% if candidate.is_laid_off %}
+                <img src="{{ url_for('static', filename='img/default-avatar.svg') }}" 
+                     alt="{{ candidate.name }} - Laid Off">
+                {% else %}
                 <img src="{{ url_for('static', filename='uploads/' + candidate.photo) }}" 
                      alt="{{ candidate.name }}"
-                     onerror="this.src='{{ url_for('static', filename='img/default-avatar.svg') }}'">
+                     onerror="this.src='{{ url_for('static', filename='img/user-avatar.svg') }}'">
+                {% endif %}
             </div>
             <div class="form-fields">
                 <div class="form-group">

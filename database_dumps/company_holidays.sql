@@ -1,0 +1,3 @@
+INSERT INTO public.company_holidays (id, date, name, description, "createdAt", "updatedAt") VALUES ('949faecc-d7c6-4372-bc46-9365403e7dca', '2025-11-28', 'SF andrei', null, '2025-11-27 09:31:22.298', '2025-11-27 09:31:22.298');
+INSERT INTO public.company_holidays (id, date, name, description, "createdAt", "updatedAt") VALUES ('660380b3-608f-4953-b443-98a0dbcddf15', '2025-12-05', 'Long weekend', 'PLTK long weekend', '2025-11-27 09:57:27.801', '2025-11-27 09:57:27.801');
+INSERT INTO public.company_holidays (id, date, name, description, "createdAt", "updatedAt") VALUES ('209d7c05-9590-4a9d-9a69-95e525036d8d', '2025-11-01', 'test', null, '2025-11-27 11:10:40.975', '2025-11-27 11:10:40.975');

@@ -1,0 +1,4 @@
+INSERT INTO public.teams (id, name, description, "createdAt", "updatedAt") VALUES ('8d51d4a9-e868-4027-be00-206228b0c06b', 'Client', 'Frontend development and client-side technologies', '2025-11-21 14:10:05.206', '2025-11-21 14:10:05.206');
+INSERT INTO public.teams (id, name, description, "createdAt", "updatedAt") VALUES ('f7f23663-2e05-4ce6-919e-f96e09c0aa7b', 'Server', 'Backend development and server-side technologies', '2025-11-21 14:10:05.248', '2025-11-21 14:10:05.248');
+INSERT INTO public.teams (id, name, description, "createdAt", "updatedAt") VALUES ('e8945f0d-ac4c-4006-b454-09d01bf63ec9', 'QA', 'Quality assurance and testing', '2025-11-21 14:10:05.260', '2025-11-21 14:10:05.260');
+INSERT INTO public.teams (id, name, description, "createdAt", "updatedAt") VALUES ('e50e0079-83f2-4bf3-8279-3d16da6f353f', 'Integrators', 'System integration and deployment', '2025-11-21 14:10:05.268', '2025-11-21 14:10:05.268');

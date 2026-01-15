@@ -50,11 +50,14 @@
             {% for candidate in candidates %}
             <div class="candidate-admin-card {% if candidate.is_laid_off %}laid-off{% endif %}">
                 <div class="candidate-photo">
+                    {% if candidate.is_laid_off %}
+                    <img src="{{ url_for('static', filename='img/default-avatar.svg') }}" 
+                         alt="{{ candidate.name }} - Laid Off">
+                    <div class="laid-off-overlay">💀 LAID OFF</div>
+                    {% else %}
                     <img src="{{ url_for('static', filename='uploads/' + candidate.photo) }}" 
                          alt="{{ candidate.name }}"
-                         onerror="this.src='{{ url_for('static', filename='img/default-avatar.svg') }}'">
-                    {% if candidate.is_laid_off %}
-                    <div class="laid-off-overlay">💀 LAID OFF</div>
+                         onerror="this.src='{{ url_for('static', filename='img/user-avatar.svg') }}'">
                     {% endif %}
                 </div>
                 <div class="candidate-details">

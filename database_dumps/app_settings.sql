@@ -1,0 +1,3 @@
+INSERT INTO public.app_settings (id, key, value, "createdAt", "updatedAt") VALUES ('708356ac-2d0d-4ce2-94fe-a4395e130808', 'app_name', '{"name": "Team Leader Interface"}', '2025-11-21 11:22:57.455', '2025-11-21 11:22:57.455');
+INSERT INTO public.app_settings (id, key, value, "createdAt", "updatedAt") VALUES ('059a70a0-1de8-443f-93bf-c277d8551508', 'theme', '{"mode": "light", "primaryColor": "#3b82f6"}', '2025-11-21 11:22:57.455', '2025-11-21 11:22:57.455');
+INSERT INTO public.app_settings (id, key, value, "createdAt", "updatedAt") VALUES ('a6c56831-9a60-462e-93d5-e2821b7ccbc4', 'features', '{"enableAI": true, "enableExport": true, "enableCollaboration": true}', '2025-11-21 11:22:57.455', '2025-11-21 11:22:57.455');

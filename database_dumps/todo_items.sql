@@ -1,0 +1,1 @@
+INSERT INTO public.todo_items (id, widget_id, summary, date, due_date, status, priority, "createdAt", "updatedAt") VALUES ('130aa5ca-400d-40e5-a651-e9f3831864b9', 'widget_1764079600587_22hzfmewx', 'testssss', '2025-11-25', '2025-12-04', 'done', 'mid', '2025-11-25 14:06:55.390', '2025-11-25 14:08:01.862');
